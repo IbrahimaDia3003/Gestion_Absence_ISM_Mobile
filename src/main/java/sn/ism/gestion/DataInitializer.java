@@ -9,11 +9,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import sn.ism.gestion.data.entities.*;
-import sn.ism.gestion.data.enums.ModeCours;
-import sn.ism.gestion.data.enums.Role;
-import sn.ism.gestion.data.enums.Situation;
+import sn.ism.gestion.data.enums.*;
 import sn.ism.gestion.data.repositories.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -29,6 +28,9 @@ public class DataInitializer {
     @Autowired private SessionsCoursRepository sessionCoursRepository;
     @Autowired private CoursRepository coursRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private PaiementRepository paiementRepository;
+    @Autowired private JustificationRepository justificationRepository;
+
 
     @PostConstruct
     public void init() {
@@ -41,17 +43,23 @@ public class DataInitializer {
         classeRepository.deleteAll();
         filiereRepository.deleteAll();
         utilisateurRepository.deleteAll();
+        justificationRepository.deleteAll();
+
 
         // Utilisateurs
         List<Utilisateur> utilisateurs = new ArrayList<>();
-        for (int i = 1; i <= 6; i++) {
+        for (int i = 1; i <= 10; i++) {
             Utilisateur u = new Utilisateur();
             u.setNom("Nom" + i);
             u.setPrenom("Prenom" + i);
             u.setLogin("login" + i);
             u.setMotDePasse(passwordEncoder.encode("pass" + i));
             u.setPhoto("absent.img");
-            u.setRole(i <= 3 ? Role.ETUDIANT : Role.VIGILE);
+            if (i == 1 || i == 2) {
+                u.setRole(Role.VIGILE);
+            } else {
+                u.setRole(Role.ETUDIANT);
+            }
             utilisateurs.add(u);
         }
         utilisateurRepository.saveAll(utilisateurs);
@@ -78,9 +86,10 @@ public class DataInitializer {
         }
         classeRepository.saveAll(classes);
 
+
         // Étudiants
         List<Etudiant> etudiants = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 8; i++) {
             Etudiant e = new Etudiant();
             e.setMatricule("MATRICULE" + (i + 1));
             e.setUtilisateurId(utilisateurs.get(i).getId());
@@ -92,11 +101,40 @@ public class DataInitializer {
             classe.getEtudiantIds().add(e.getId());
         }
         etudiantRepository.saveAll(etudiants);
-        classeRepository.saveAll(classes);
+
+//        for (Classe classe : classes) {
+//            List<String> ids = etudiants.stream()
+//                    .filter(e -> e.getClasseId().equals(classe.getId()))
+//                    .map(Etudiant::getId)
+//                    .toList();
+//            classe.setEtudiantIds(ids);
+//        }
+//        classeRepository.saveAll(classes);
+
+        List<Paiement> paiements = new ArrayList<>();
+        for (int i = 0; i < etudiants.size(); i++) {
+            Etudiant etudiant = etudiants.get(i);
+            for (int j = 1; j <= 6; j++) {
+                Paiement paiement = new Paiement();
+                paiement.setEtudiantId(etudiant.getId());
+                paiement.setMontant(new BigDecimal("100000"));
+                paiement.setDatePaiement(LocalDate.now().minusMonths(j + i));
+                if (i == 0) {
+                    paiement.setStatus(StatusPaiment.NO_PAYE);
+                } else if (i == 1) {
+                    paiement.setStatus(StatusPaiment.PASSE);
+                } else {
+                    paiement.setStatus(StatusPaiment.PAYE);
+                }
+                // dates différentes
+                paiements.add(paiement);
+            }
+        }
+        paiementRepository.saveAll(paiements);
 
         // Vigiles
         List<Vigile> vigiles = new ArrayList<>();
-        for (int i = 3; i < utilisateurs.size(); i++) {
+        for (int i = 2; i < utilisateurs.size(); i++) {
             Vigile v = new Vigile();
             v.setUtilisateurId(utilisateurs.get(i).getId());
             vigiles.add(v);
@@ -124,12 +162,12 @@ public class DataInitializer {
             List<Etudiant> etudiantsClasse = etudiantRepository.findByclasseId(classe.getId());
             List<String> etudiantIds = etudiantsClasse.stream().map(Etudiant::getId).toList();
 
-            for (int j = 0; j < 2; j++) {
+            for (int j = 0; j < 5; j++) {
                 SessionCours session = new SessionCours();
                 session.setClasseId(classe.getId());
-                session.setDate(LocalDate.now().plusDays(j));
-                session.setHeureDebut(session.getDate().atTime(8 + j * 2, 0));
-                session.setHeureFin(session.getHeureDebut().plusHours(2));
+                session.setDateSession(LocalDate.now());
+                session.setHeureDebut(session.getHeureDebut());
+                session.setHeureFin(session.getHeureDebut());
                 session.setNombreHeures(2);
                 session.setMode(ModeCours.PRESENTIEL);
                 session.setValide(true);
@@ -140,18 +178,26 @@ public class DataInitializer {
 
         // Absences fictives
         List<Absence> absences = new ArrayList<>();
-        for (int i = 0; i < etudiants.size(); i++) {
+        for (int i = 0; i < 4; i++) {
             Absence a = new Absence();
             a.setId(UUID.randomUUID().toString());
             a.setEtudiantId(etudiants.get(i).getId());
             a.setSessionId(sessions.get(i % sessions.size()).getId());
             a.setType(i % 2 == 0 ? Situation.ABSENCE : Situation.RETARD);
+
+            if (i == 0 || i ==2 || i==3) {
+                a.setType(Situation.ABSENCE);
+            } else{
+                a.setType(Situation.RETARD);
+            }
             a.setJustifiee(i % 2 == 0);
             a.setJustificationId("JUSTIF" + i);
             absences.add(a);
             etudiants.get(i).getAbsenceIds().add(a.getId());
         }
+
         absenceRepository.saveAll(absences);
+
         for (Etudiant etudiant : etudiants) {
             List<String> ids = absences.stream()
                     .filter(a -> a.getEtudiantId().equals(etudiant.getId()))
@@ -161,6 +207,31 @@ public class DataInitializer {
         }
         etudiantRepository.saveAll(etudiants);
 
+
+        List<Justification> justifications = new ArrayList<>();
+        for (int i=0 ; i<=2 ;i++)
+        {
+            Justification justification = new Justification();
+            justification.setAbsenceId(absences.get(i).getId());
+            justification.setCommentaire("daw diangu rek dou dara");
+            justification.setFichierUrl("justification" + i + ".pdf");
+            justification.setStatut(StatutJustification.EN_ATTENTE);
+
+            justifications.add(justification);
+        }
+
+        justificationRepository.saveAll(justifications);
+        for (int i=0 ; i<=absences.size()-1 ;i++)
+        {
+            Absence absence = absences.get(i);
+            if (absence.getJustificationId() == null || absence.getJustificationId().isEmpty()) {
+                absence.setJustificationId(justifications.get(i).getId());
+            }
+        }
+        absenceRepository.saveAll(absences);
+
+
+
         System.out.println("=== Données initialisées avec succès ===");
     }
 
@@ -168,7 +239,7 @@ public class DataInitializer {
     public void initialiserAbsencesDuJour() {
         LocalDate dateDuJour = LocalDate.now();
         Pageable pageable = PageRequest.of(0, 100);
-        Page<SessionCours> sessionsDuJour = sessionCoursRepository.getSessionsDuJour(dateDuJour, pageable);
+        List<SessionCours> sessionsDuJour = sessionCoursRepository.findByDate(dateDuJour);
 
         List<Absence> absences = new ArrayList<>();
 

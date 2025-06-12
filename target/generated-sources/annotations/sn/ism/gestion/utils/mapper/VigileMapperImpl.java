@@ -9,7 +9,7 @@ import sn.ism.gestion.web.dto.Response.VigileSimpleResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-01T14:53:24+0000",
+    date = "2025-06-12T16:13:09+0000",
     comments = "version: 1.6.3, compiler: javac, environment: Java 23.0.2 (Oracle Corporation)"
 )
 @Component

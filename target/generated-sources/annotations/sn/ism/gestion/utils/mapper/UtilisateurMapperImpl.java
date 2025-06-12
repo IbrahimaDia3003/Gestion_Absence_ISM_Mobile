@@ -2,14 +2,14 @@ package sn.ism.gestion.utils.mapper;
 
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
+import sn.ism.gestion.Security.DTO.Request.UtilisateurCreateRequest;
+import sn.ism.gestion.Security.DTO.Response.UtilisateurSimpleResponse;
 import sn.ism.gestion.data.entities.Utilisateur;
 import sn.ism.gestion.data.enums.Role;
-import sn.ism.gestion.web.dto.Request.UtilisateurCreateRequest;
-import sn.ism.gestion.web.dto.Response.UtilisateurSimpleResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-01T14:53:23+0000",
+    date = "2025-06-12T16:13:09+0000",
     comments = "version: 1.6.3, compiler: javac, environment: Java 23.0.2 (Oracle Corporation)"
 )
 @Component

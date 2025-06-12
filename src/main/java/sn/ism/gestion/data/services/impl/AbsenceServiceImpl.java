@@ -1,9 +1,9 @@
 package sn.ism.gestion.data.services.impl;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +26,7 @@ import sn.ism.gestion.web.dto.Response.AbsenceSimpleResponse;
 
 
 @Service
+@RequiredArgsConstructor
 public class AbsenceServiceImpl implements IAbsenceService {
 
     @Autowired
@@ -54,25 +55,7 @@ public class AbsenceServiceImpl implements IAbsenceService {
         absenceCreate.setEtudiantId(existingEtudiant.getId());
         return absenceRepository.save(absenceCreate);
     }
-//
-//    @Override
-//    public Absence pointerEtudiant(String sessionId, String etudiantId) {
-//        Absence absence = absenceRepository.findOneBySessionIdAndEtudiantId(sessionId, etudiantId)
-//            .orElseThrow(() -> new EntityNotFoundExecption("Absence non initialisée"));
-//
-//        LocalDateTime heureActuelle = LocalDateTime.now();
-//        LocalDateTime heureDebut = sessionCoursRepository.findById(sessionId)
-//            .orElseThrow().getHeureDebut();
-//
-//        if (heureActuelle.isBefore(heureDebut.plusMinutes(5))) {
-//            absence.setType(Situation.PRESENT);
-//        } else {
-//            absence.setType(Situation.RETARD);
-//        }
-//            absence.setHeurePointage(LocalTime.now());
-//            absenceRepository.save(absence);
-//        return absence;
-//    }
+
 
     public Absence pointerEtudiantByMatricule(String sessionId, String matricule) {
         Absence absence = absenceRepository.findOneBySessionIdAndEtudiantId(sessionId, matricule)
@@ -89,11 +72,11 @@ public class AbsenceServiceImpl implements IAbsenceService {
                     return absenceRepository.save(newAbsence);
                 });
 
-        LocalDateTime heureDebut = sessionCoursRepository.findById(sessionId)
+        LocalTime heureDebut = sessionCoursRepository.findById(sessionId)
                 .orElseThrow(() -> new EntityNotFoundExecption("Session introuvable"))
                 .getHeureDebut();
 
-        LocalDateTime heureActuelle = LocalDateTime.now();
+        LocalTime heureActuelle = LocalTime.now();
 
         if (heureActuelle.isBefore(heureDebut.plusMinutes(5))) {
             absence.setType(Situation.PRESENT);
@@ -119,11 +102,11 @@ public class AbsenceServiceImpl implements IAbsenceService {
                     return absenceRepository.save(newAbsence);
                 });
 
-        LocalDateTime heureDebut = sessionCoursRepository.findById(sessionId)
+        LocalTime heureDebut = sessionCoursRepository.findById(sessionId)
                 .orElseThrow(() -> new EntityNotFoundExecption("Session introuvable"))
                 .getHeureDebut();
 
-        LocalDateTime heureActuelle = LocalDateTime.now();
+        LocalTime heureActuelle = LocalTime.now();
 
         if (heureActuelle.isBefore(heureDebut.plusMinutes(5))) {
             absence.setType(Situation.PRESENT);
@@ -164,15 +147,10 @@ public class AbsenceServiceImpl implements IAbsenceService {
     }
 
     @Override
-    public Page<Absence> findAll(Pageable pageable) {
-        return absenceRepository.findAll(pageable);
-    }
+    public List<AbsenceAllResponse> getAllAbsences() {
+        List<Absence> absences = absenceRepository.findAll();
 
-    @Override
-    public Page<AbsenceAllResponse> getAllAbsences(Pageable pageable) {
-        Page<Absence> absences = absenceRepository.findAll(pageable);
-
-        return absences.map(a -> {
+        return absences.stream().map(a -> {
             AbsenceAllResponse dto = new AbsenceAllResponse();
             dto.setType(a.getType());
             dto.setSessionId(a.getSessionId());
@@ -185,7 +163,15 @@ public class AbsenceServiceImpl implements IAbsenceService {
                 });
             });
             return dto;
-        });
+        }).toList();
+    }
+
+    @Override
+    public List<Absence> getAbsencebySessionId(String sessionId)
+    {
+        if (sessionCoursRepository.existsById(sessionId))
+            return absenceRepository.findAbsenceBySessionId(sessionId);
+        return null;
     }
 
     @Override
@@ -215,7 +201,7 @@ public class AbsenceServiceImpl implements IAbsenceService {
         dto.setClasseEtudiant(etudiant.getClasseId());
 
         if (session != null) {
-            dto.setSessionDate(session.getDate());
+            dto.setSessionDate(session.getDateSession());
             dto.setHeureDebut(session.getHeureDebut());
             dto.setHeureFin(session.getHeureFin());
         }

@@ -53,10 +53,6 @@ public class UtilisateurServiceImpl implements IUtilisateurService {
         return utilisateurRepo.findAll();
     }
 
-    @Override
-    public Page<Utilisateur> findAll(Pageable pageable) {
-        return utilisateurRepo.findAll(pageable);
-    }
 
     @Override
     public Utilisateur findByLogin(String login) {
@@ -69,10 +65,13 @@ public class UtilisateurServiceImpl implements IUtilisateurService {
         Utilisateur utilisateur = utilisateurRepo.findByLogin(login)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec login: " + login));
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(utilisateur.getLogin())
+        return User.withUsername(utilisateur.getLogin())
                 .password(utilisateur.getMotDePasse())
                 .authorities("ROLE_" + utilisateur.getRole().name())
                 .build();
+    }
+    @Override
+    public Page<Utilisateur> findAll(Pageable pageable) {
+        return utilisateurRepo.findAll(pageable);
     }
 }

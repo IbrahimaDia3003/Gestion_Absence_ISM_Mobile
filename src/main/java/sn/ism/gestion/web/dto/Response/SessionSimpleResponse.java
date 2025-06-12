@@ -4,6 +4,7 @@ import sn.ism.gestion.data.enums.ModeCours;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 
@@ -18,8 +19,8 @@ public class SessionSimpleResponse {
     private  String id;
     private String coursId;
     private LocalDate date;
-    private LocalDateTime heureDebut;
-    private LocalDateTime heureFin;
+    private LocalTime heureDebut;
+    private LocalTime heureFin;
     private int nombreHeures;
     private ModeCours mode;
     private String classeId;

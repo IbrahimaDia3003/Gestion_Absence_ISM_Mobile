@@ -8,8 +8,9 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,30 +28,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Autoriser l'accès libre à Swagger
+                        // Swagger: à autoriser sans token
                         .requestMatchers(
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/webjars/**","/api/utilisateurs/login"
+                                "/webjars/**",
+                                "/api-docs/**"  // IMPORTANT !
                         ).permitAll()
-                        // Autoriser le login
+                        // Authentification publique
                         .requestMatchers("/api/utilisateurs/login").permitAll()
-                        // Règles pour API protégées
-                        .requestMatchers("/api/admins/**").hasAnyRole("ETUDIANT", "ADMIN", "VIGILE")
-                        .requestMatchers("/api/etudiants/**").hasAnyRole("ETUDIANT", "ADMIN", "VIGILE")
-                        .requestMatchers("/api/vigiles/**").hasAnyRole("ETUDIANT", "ADMIN", "VIGILE")
-                        // Toutes les autres requêtes nécessitent une auth
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/web/admins/**").permitAll()
+                        .requestMatchers("/api/mobile/etudiants/**").permitAll()
+                        .requestMatchers("/api/mobile/vigiles/**").permitAll()
+
+                        // Routes sécurisées
+//                        .requestMatchers("/api/web/admins/**").hasRole("ADMIN")
+//                        .requestMatchers("/api/mobile/etudiants/**").hasAnyRole("ETUDIANT", "ADMIN", "VIGILE")
+//                        .requestMatchers("/api/mobile/vigiles/**").hasRole("VIGILE")
+//                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -70,3 +76,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
+
+
+
+

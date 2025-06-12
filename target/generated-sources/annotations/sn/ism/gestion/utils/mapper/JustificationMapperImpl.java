@@ -3,32 +3,49 @@ package sn.ism.gestion.utils.mapper;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import sn.ism.gestion.data.entities.Justification;
+import sn.ism.gestion.mobile.dto.Response.JustificationSimpleMobileResponse;
 import sn.ism.gestion.web.dto.Request.JustificationRequest;
-import sn.ism.gestion.web.dto.Response.JustificationSimpleResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-01T14:53:24+0000",
+    date = "2025-06-12T16:13:08+0000",
     comments = "version: 1.6.3, compiler: javac, environment: Java 23.0.2 (Oracle Corporation)"
 )
 @Component
 public class JustificationMapperImpl implements JustificationMapper {
 
     @Override
-    public JustificationSimpleResponse toDto(Justification Justification) {
+    public JustificationSimpleMobileResponse toDtoMobile(Justification Justification) {
         if ( Justification == null ) {
             return null;
         }
 
-        JustificationSimpleResponse justificationSimpleResponse = new JustificationSimpleResponse();
+        JustificationSimpleMobileResponse justificationSimpleMobileResponse = new JustificationSimpleMobileResponse();
 
-        justificationSimpleResponse.setAbsenceId( Justification.getAbsenceId() );
-        justificationSimpleResponse.setCommentaire( Justification.getCommentaire() );
-        justificationSimpleResponse.setFichierUrl( Justification.getFichierUrl() );
-        justificationSimpleResponse.setStatut( Justification.getStatut() );
-        justificationSimpleResponse.setDateSoumission( Justification.getDateSoumission() );
+        justificationSimpleMobileResponse.setAbsenceId( Justification.getAbsenceId() );
+        justificationSimpleMobileResponse.setCommentaire( Justification.getCommentaire() );
+        justificationSimpleMobileResponse.setFichierUrl( Justification.getFichierUrl() );
+        justificationSimpleMobileResponse.setStatut( Justification.getStatut() );
+        justificationSimpleMobileResponse.setDateSoumission( Justification.getDateSoumission() );
 
-        return justificationSimpleResponse;
+        return justificationSimpleMobileResponse;
+    }
+
+    @Override
+    public JustificationSimpleMobileResponse toDto(Justification Justification) {
+        if ( Justification == null ) {
+            return null;
+        }
+
+        JustificationSimpleMobileResponse justificationSimpleMobileResponse = new JustificationSimpleMobileResponse();
+
+        justificationSimpleMobileResponse.setAbsenceId( Justification.getAbsenceId() );
+        justificationSimpleMobileResponse.setCommentaire( Justification.getCommentaire() );
+        justificationSimpleMobileResponse.setFichierUrl( Justification.getFichierUrl() );
+        justificationSimpleMobileResponse.setStatut( Justification.getStatut() );
+        justificationSimpleMobileResponse.setDateSoumission( Justification.getDateSoumission() );
+
+        return justificationSimpleMobileResponse;
     }
 
     @Override

@@ -1,8 +1,7 @@
 package sn.ism.gestion.data.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 import org.springframework.stereotype.Service;
 import sn.ism.gestion.data.entities.Absence;
 import sn.ism.gestion.data.entities.Justification;
@@ -11,14 +10,13 @@ import sn.ism.gestion.data.repositories.AbsenceRepository;
 import sn.ism.gestion.data.repositories.JustificationRepository;
 import sn.ism.gestion.data.services.IJustificationService;
 import sn.ism.gestion.utils.exceptions.EntityNotFoundExecption;
-import sn.ism.gestion.utils.mapper.JustificationMapper;
-import sn.ism.gestion.web.dto.Request.JustificationRequest;
 import sn.ism.gestion.web.dto.Request.JustificationValidationRequest;
 
 import java.util.List;
 
 @Service
-public class JustificationServiceImpl implements IJustificationService {
+public class JustificationServiceImpl implements IJustificationService
+{
 
 
     @Autowired
@@ -27,25 +25,17 @@ public class JustificationServiceImpl implements IJustificationService {
     @Autowired
     private JustificationRepository justificationRepository;
 
-    @Autowired
-    private JustificationMapper justificationMapper;
-
-
 
     @Override
-    public Justification create(Justification object) {
+    public Justification create(Justification object)
+    {
         return justificationRepository.save(object);
-
     }
 
     @Override
-    public Justification createJustication(JustificationRequest justificationRequest) {
-//        var existingAbsence = absenceRepository.findById(justificationRequest.getAbsenceId())
-//                .orElseThrow(()-> new RuntimeException("Etudiant not found ou id baxxoul"));
-//
-        Justification justificationCreate = justificationMapper.toEntityR(justificationRequest);
-//        justificationCreate.setAbsenceId(existingAbsence.getId());
-        return justificationRepository.save(justificationCreate);
+    public Justification createJustication(Justification justification)
+    {
+        return justificationRepository.save(justification);
     }
 
     @Override
@@ -63,16 +53,13 @@ public class JustificationServiceImpl implements IJustificationService {
         return justificationRepository.save(justification);
     }
 
+
     @Override
-    public Justification update(String id, Justification object) {
+    public Justification update(String id, Justification object)
+    {
         return null;
     }
 
-
-    @Override
-    public Page<Justification> findAll(Pageable pageable) {
-        return justificationRepository.findAll(pageable);
-    }
 
     @Override
     public boolean delete(String id) {
@@ -86,11 +73,12 @@ public class JustificationServiceImpl implements IJustificationService {
     @Override
     public Justification findById(String id) {
         return justificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Justification non trouvée avec ID : " + id));
+                .orElseThrow(() -> new RuntimeException("Justification non trouvée avec ID  "));
     }
 
     @Override
-    public List<Justification> findAll() {
+    public List<Justification> findAll()
+    {
         return justificationRepository.findAll();
     }
 }

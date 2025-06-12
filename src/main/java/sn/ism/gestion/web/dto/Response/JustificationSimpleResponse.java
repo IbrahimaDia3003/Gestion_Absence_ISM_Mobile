@@ -1,5 +1,6 @@
 package sn.ism.gestion.web.dto.Response;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import sn.ism.gestion.data.entities.Justification;
@@ -15,6 +16,6 @@ public class JustificationSimpleResponse {
     private String commentaire;
     private String fichierUrl;
     private StatutJustification statut;
-    private LocalDateTime dateSoumission;
+    private LocalDate dateSoumission;
 
 }

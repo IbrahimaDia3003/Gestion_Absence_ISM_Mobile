@@ -4,13 +4,14 @@ import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import sn.ism.gestion.data.entities.Absence;
 import sn.ism.gestion.data.enums.Situation;
+import sn.ism.gestion.mobile.dto.Response.AbsenceEtudiantResponse;
 import sn.ism.gestion.web.dto.Request.AbsenceRequest;
 import sn.ism.gestion.web.dto.Response.AbsenceAllResponse;
 import sn.ism.gestion.web.dto.Response.AbsenceSimpleResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-01T14:53:23+0000",
+    date = "2025-06-12T16:13:08+0000",
     comments = "version: 1.6.3, compiler: javac, environment: Java 23.0.2 (Oracle Corporation)"
 )
 @Component
@@ -33,6 +34,22 @@ public class AbsenceMapperImpl implements AbsenceMapper {
         absenceAllResponse.setJustifiee( absence.isJustifiee() );
 
         return absenceAllResponse;
+    }
+
+    @Override
+    public AbsenceEtudiantResponse toDtoMobile(Absence absence) {
+        if ( absence == null ) {
+            return null;
+        }
+
+        AbsenceEtudiantResponse absenceEtudiantResponse = new AbsenceEtudiantResponse();
+
+        absenceEtudiantResponse.setId( absence.getId() );
+        absenceEtudiantResponse.setSessionId( absence.getSessionId() );
+        absenceEtudiantResponse.setType( absence.getType() );
+        absenceEtudiantResponse.setJustifiee( absence.isJustifiee() );
+
+        return absenceEtudiantResponse;
     }
 
     @Override
